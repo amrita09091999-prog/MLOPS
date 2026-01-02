@@ -62,20 +62,20 @@ def create_features(data):
         data['app_temp_range'] = data['apparent_temperature_max'] - data['apparent_temperature_min']
         data['photochemical_activity_index'] = data['shortwave_radiation_sum']*((data['temperature_2m_max']+data['temperature_2m_min']/2))
 
-        lags = [1, 2, 3, 7]
+        lags = [7]
         for lag in lags:
             data[f"pm2_5_mean_lag_{lag}"] = (
                 data
                 .groupby(['state','place','latitude','longitude'])["pm2_5_mean"]
                 .shift(lag)
             )
-        for window in [3,7,14]:
+        for window in [7,14]:
             data[f"pm25_rolling_mean_{window}"] = (
             data
             .groupby(['state','place','latitude','longitude'])["pm2_5_mean"]
             .rolling(window=window)
             .mean()
-            .reset_index(level=[0,1,2,3], drop=True)
+            .reset_index(level=[0,1], drop=True)
             )
         data = data.dropna()
         data['radiation_rate'] = data['shortwave_radiation_sum']/(data['sunshine_duration']+0.001)
@@ -84,7 +84,7 @@ def create_features(data):
         data['ozone_uv_mean'] = data['ozone_mean']* data['uv_index_mean']
         data['ozone_sunshine'] = data['ozone_max'] * data['sunshine_duration']
         data['dust_wind_speed'] = data['dust_mean']*data['wind_speed_10m_max']
-        data.drop(columns = ['state', 'place', 'latitude', 'longitude', 'date'],inplace=True)
+        data.drop(columns = ['state', 'place', 'latitude', 'longitude', 'date','pm2_5_mean'],inplace=True)
         logger.debug("Data has been pre-processed and features created")
         return data 
     
