@@ -12,7 +12,7 @@ stages:
       - src/feature_preprocessing_engineering.py
       - src/data_ingestion.py
     outs:
-      - logs/data_feature_engineering.log
+      - logs/feature_preprocessing_engineering.log
 
   model_training:
     cmd: python src/model_building_evaluation.py
@@ -21,6 +21,6 @@ stages:
       - src/feature_preprocessing_engineering.py
       - params.yaml
     outs:
-      - model_metrics/model.pkl
+      - model_metrics/best_model.pkl
     metrics:
       - model_metrics/model_eval_metrics.json
