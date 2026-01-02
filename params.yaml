@@ -1,0 +1,32 @@
+random_forest:
+  enabled: true
+  n_estimators: 300
+  max_depth: 20
+  min_samples_leaf: 20
+  n_jobs: -1
+  random_state: 42
+
+xgboost:
+  enabled: true
+  n_estimators: 1000
+  learning_rate: 0.03
+  max_depth: 6
+  subsample: 0.8
+  colsample_bytree: 0.8
+  objective: reg:squarederror
+  tree_method: hist
+  random_state: 42
+
+lightgbm:
+  enabled: true
+  objective: regression
+  n_estimators: 2000
+  learning_rate: 0.03
+  num_leaves: 64
+  min_data_in_leaf: 50
+  subsample: 0.8
+  colsample_bytree: 0.8
+  random_state: 42
+
+selection_metric:
+  metric: Adj R2 

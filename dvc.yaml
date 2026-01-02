@@ -1,0 +1,26 @@
+stages:
+  data_ingestion:
+    cmd: python src/data_ingestion.py
+    deps:
+      - src/data_ingestion.py
+    outs:
+      - logs/data_ingestion.log
+
+  feature_engineering:
+    cmd: python src/feature_preprocessing_engineering.py
+    deps:
+      - src/feature_preprocessing_engineering.py
+      - src/data_ingestion.py
+    outs:
+      - logs/data_feature_engineering.log
+
+  model_training:
+    cmd: python src/model_building_evaluation.py
+    deps:
+      - src/model_building_evaluation.py
+      - src/feature_preprocessing_engineering.py
+      - params.yaml
+    outs:
+      - model_metrics/model.pkl
+    metrics:
+      - model_metrics/model_eval_metrics.json
