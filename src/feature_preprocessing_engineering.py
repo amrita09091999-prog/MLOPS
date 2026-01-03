@@ -75,7 +75,7 @@ def create_features(data):
             .groupby(['state','place','latitude','longitude'])["pm2_5_mean"]
             .rolling(window=window)
             .mean()
-            .reset_index(level=[0,1], drop=True)
+            .reset_index(level=[0,1,2,3], drop=True)
             )
         data = data.dropna()
         data['radiation_rate'] = data['shortwave_radiation_sum']/(data['sunshine_duration']+0.001)

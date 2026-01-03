@@ -1,12 +1,11 @@
-random_forest:
+random_forest_params:
   enabled: true
   n_estimators: 500
   max_depth: 20
   min_samples_leaf: 20
   n_jobs: -1
   random_state: 42
-
-xgboost:
+xgboost_params:
   enabled: true
   n_estimators: 1500
   learning_rate: 0.01
@@ -16,8 +15,7 @@ xgboost:
   objective: reg:squarederror
   tree_method: hist
   random_state: 42
-
-lightgbm:
+lightgbm_params:
   enabled: true
   objective: regression
   n_estimators: 2000
@@ -27,6 +25,4 @@ lightgbm:
   subsample: 0.8
   colsample_bytree: 0.8
   random_state: 42
-
-selection_metric:
-  metric: Adj R2 
+best_model/name: lightgbm

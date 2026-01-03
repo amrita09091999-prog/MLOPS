@@ -11,6 +11,7 @@ import numpy as np
 import pickle
 import json
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from dvclive import Live
 
 logs_dir = '/Users/amritamandal/Desktop/Python/MLOPS/DVC_AWS/MLOPS-1/logs'
 os.makedirs(logs_dir, exist_ok=True)
@@ -124,37 +125,52 @@ def train_and_evaluate(X_train, X_val, Y_train, Y_val):
     best_model_name = None
     best_metric_value = -np.inf  # because higher is better (R2 / Adj R2)
 
-    for model_name, model in models.items():
-        model.fit(X_train, Y_train)
-        logger.debug(f"Model trained - {model_name}")
+    with Live(save_dvc_exp=True) as live:
 
-        Y_pred = model.predict(X_val)
-        evaluation = evaluate(Y_val, Y_pred, len(X_train.columns))
+        for model_name, model in models.items():
+            model.fit(X_train, Y_train)
+            logger.debug(f"Model trained - {model_name}")
+            live.log_params(
+            {f"{model_name}_params": params[model_name]}
+             )
 
-        results[model_name] = {
-            "model_name": model_name,
-            "metrics": evaluation
-        }
+            Y_pred = model.predict(X_val)
+            evaluation = evaluate(Y_val, Y_pred, len(X_train.columns))
 
+            for metric_name, metric_value in evaluation.items():
+                live.log_metric(
+                    f"{model_name}/{metric_name}",
+                    metric_value
+                )
+
+            results[model_name] = {
+                "model_name": model_name,
+                "metrics": evaluation
+            }
+
+            logger.debug(
+                f"""Model: {model_name}
+                MAE: {evaluation['MAE']}
+                RMSE: {evaluation['RMSE']}
+                R2: {evaluation['R2']}
+                Adj R2: {evaluation['Adj R2']}
+                """
+            )
+
+            # Track best model
+            metric_value = evaluation[selection_metric]
+            if metric_value > best_metric_value:
+                best_metric_value = metric_value
+                best_model = model
+                best_model_name = model_name
+            
+        live.log_metric(
+            f"best_model/{selection_metric}",best_metric_value)
+        live.log_param("best_model/name", best_model_name)
+  
         logger.debug(
-            f"""Model: {model_name}
-            MAE: {evaluation['MAE']}
-            RMSE: {evaluation['RMSE']}
-            R2: {evaluation['R2']}
-            Adj R2: {evaluation['Adj R2']}
-            """
+            f"Best model -> {best_model_name} -> metrics {results[best_model_name]['metrics']}"
         )
-
-        # Track best model
-        metric_value = evaluation[selection_metric]
-        if metric_value > best_metric_value:
-            best_metric_value = metric_value
-            best_model = model
-            best_model_name = model_name
-
-    logger.debug(
-        f"Best model -> {best_model_name} -> metrics {results[best_model_name]['metrics']}"
-    )
 
     return best_model, best_model_name, results
 
